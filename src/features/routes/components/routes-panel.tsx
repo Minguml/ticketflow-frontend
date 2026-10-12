@@ -18,7 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { api, type Route, type Station } from "@/lib/api";
+import { routesApi, type Route } from "@/features/routes/api/routes-api";
+import { stationsApi, type Station } from "@/features/stations/api/stations-api";
 
 function ErrorText({ message }: { message: string }) {
   return message ? (
@@ -49,15 +50,15 @@ function RouteForm({
     setError("");
     try {
       if (route) {
-        if (patch) await api.patchRoute(route.id, { name });
+        if (patch) await routesApi.patch(route.id, { name });
         else
-          await api.updateRoute(route.id, {
+          await routesApi.update(route.id, {
             name,
             origin_id: origin,
             destination_id: destination,
           });
       } else
-        await api.createRoute({
+        await routesApi.create({
           name,
           origin_id: origin,
           destination_id: destination,
@@ -150,8 +151,8 @@ export function RoutesPanel({ canEdit }: { canEdit: boolean }) {
     setLoading(true);
     try {
       const [routeItems, stationItems] = await Promise.all([
-        api.routes(),
-        api.stations(),
+        routesApi.list(),
+        stationsApi.list(),
       ]);
       setRoutes(routeItems);
       setStations(stationItems);

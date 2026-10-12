@@ -11,7 +11,7 @@ The root page selects the portal from the hostname. The operator portal supports
 
 ## Feature structure
 
-Next.js route files under `src/app` are thin adapters. Product behavior lives under `src/features`: `auth` owns sessions and login, `operator` owns the operations shell, `stations`, `routes`, and `admin-access` own their workflows, and `user` owns the passenger entry point. Shared API types and the request client stay in `src/lib/api.ts`; generated shadcn primitives stay in `src/components/ui`.
+Next.js route files under `src/app` are thin adapters. Product behavior lives under `src/features`: `auth` owns sessions and login, `operator` owns the operations shell, `stations`, `routes`, and `admin-access` own their workflows, and `user` owns the passenger entry point. Each feature with API endpoints owns its endpoint functions and domain types in an `api/` folder. The shared HTTP request helper and base URL stay in `src/lib/api-client.ts`; generated shadcn primitives stay in `src/components/ui`.
 
 ## Configuration
 

@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { api } from "@/lib/api";
+import { adminAccessApi } from "@/features/admin-access/api/admin-access-api";
 export function AccessPanel() {
   const [userId, setUserId] = useState("");
   const [busy, setBusy] = useState(false);
@@ -23,8 +23,8 @@ export function AccessPanel() {
     try {
       const result =
         action === "grant"
-          ? await api.grantOperator(userId)
-          : await api.revokeOperator(userId);
+          ? await adminAccessApi.grantOperator(userId)
+          : await adminAccessApi.revokeOperator(userId);
       setMessage(
         `${action === "grant" ? "Operator access granted" : "Operator access revoked"} for ${result.user_id}.`,
       );

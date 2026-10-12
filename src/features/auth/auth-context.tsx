@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { api, type User } from "@/lib/api";
+import { authApi, type User } from "@/features/auth/api/auth-api";
 
 type AuthContextValue = {
   user: User | null;
@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       try {
-        const current = await api.me();
+        const current = await authApi.me();
         if (
           active &&
           window.localStorage.getItem("ticketflow_token") === token
@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signIn: async (email, password, operator = false) => {
         setError("");
         try {
-          const response = await api.login(email, password);
+          const response = await authApi.login(email, password);
           if (
             operator &&
             !response.user.is_admin &&

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { api, type Station } from "@/lib/api";
+import { stationsApi, type Station } from "@/features/stations/api/stations-api";
 
 function ErrorText({ message }: { message: string }) {
   return message ? (
@@ -40,9 +40,9 @@ function StationForm({
     setError("");
     try {
       if (station) {
-        if (patch) await api.patchStation(station.id, { address });
-        else await api.updateStation(station.id, { name, address });
-      } else await api.createStation({ name, address });
+        if (patch) await stationsApi.patch(station.id, { address });
+        else await stationsApi.update(station.id, { name, address });
+      } else await stationsApi.create({ name, address });
       onSaved();
     } catch (cause) {
       setError(
@@ -104,7 +104,7 @@ export function StationsPanel({ canEdit }: { canEdit: boolean }) {
   async function load() {
     setLoading(true);
     try {
-      setStations(await api.stations());
+      setStations(await stationsApi.list());
       setError("");
     } catch (cause) {
       setError(
