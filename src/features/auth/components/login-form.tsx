@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +17,7 @@ import { useAuth } from "@/features/auth/auth-context";
 
 export function LoginForm({ operator }: { operator: boolean }) {
 	const { signIn, error: authError } = useAuth();
+	const router = useRouter();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [busy, setBusy] = useState(false);
@@ -25,6 +27,7 @@ export function LoginForm({ operator }: { operator: boolean }) {
 		setBusy(true);
 		try {
 			await signIn(email, password, operator);
+			router.replace("/");
 		} catch {
 			/* Auth context exposes the message. */
 		} finally {

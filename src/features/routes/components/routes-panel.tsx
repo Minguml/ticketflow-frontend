@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +30,7 @@ function ErrorText({ message }: { message: string }) {
     </Alert>
   ) : null;
 }
-function RouteForm({
+export function RouteForm({
   route,
   stations,
   canEdit,
@@ -185,6 +187,9 @@ export function RoutesPanel({ canEdit }: { canEdit: boolean }) {
             <Button variant="outline" onClick={() => void load()}>
               Refresh
             </Button>
+            {canEdit && (
+              <Button render={<Link href="/routes/new" />} nativeButton={false}>Add route</Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -214,7 +219,7 @@ export function RoutesPanel({ canEdit }: { canEdit: boolean }) {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>{selected ? "Edit route" : "Add route"}</CardTitle>
+          <CardTitle>{selected ? "Edit route" : "Select a route"}</CardTitle>
           <CardDescription>
             {canEdit
               ? "Full edits use PUT; the quick action uses PATCH."
@@ -222,18 +227,68 @@ export function RoutesPanel({ canEdit }: { canEdit: boolean }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <RouteForm
-            key={selected?.id ?? "new"}
-            route={selected}
-            stations={stations}
-            canEdit={canEdit}
-            onSaved={() => {
-              setSelected(undefined);
-              void load();
-            }}
-          />
+          {selected ? (
+            <RouteForm
+              key={selected.id}
+              route={selected}
+              stations={stations}
+              canEdit={canEdit}
+              onSaved={() => {
+                setSelected(undefined);
+                void load();
+              }}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Choose a route to edit it, or use “Add route” to create one.
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export function RouteCreatePage({ canEdit }: { canEdit: boolean }) {
+  const router = useRouter();
+  const [stations, setStations] = useState<Station[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    void stationsApi
+      .list()
+      .then(setStations)
+      .catch((cause) =>
+        setError(cause instanceof Error ? cause.message : "Unable to load stations"),
+      )
+      .finally(() => setLoading(false));
+  }, []);
+  return (
+    <Card className="max-w-2xl">
+      <CardHeader>
+        <CardTitle>Add route</CardTitle>
+        <CardDescription>Connect two stations into a route.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Loading stations…</p>
+        ) : error ? (
+          <ErrorText message={error} />
+        ) : canEdit ? (
+          <RouteForm
+            stations={stations}
+            canEdit={canEdit}
+            onSaved={() => router.push("/routes")}
+          />
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Your account can view routes but cannot create them.
+          </p>
+        )}
+        <Button className="mt-4" variant="ghost" render={<Link href="/routes" />} nativeButton={false}>
+          Cancel
+        </Button>
+      </CardContent>
+    </Card>
   );
 }

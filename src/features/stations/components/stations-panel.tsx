@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +23,7 @@ function ErrorText({ message }: { message: string }) {
   ) : null;
 }
 
-function StationForm({
+export function StationForm({
   station,
   canEdit,
   onSaved,
@@ -132,6 +134,9 @@ export function StationsPanel({ canEdit }: { canEdit: boolean }) {
             <Button variant="outline" onClick={() => void load()}>
               Refresh
             </Button>
+            {canEdit && (
+              <Button render={<Link href="/stations/new" />} nativeButton={false}>Add station</Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -160,7 +165,7 @@ export function StationsPanel({ canEdit }: { canEdit: boolean }) {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>{selected ? "Edit station" : "Add station"}</CardTitle>
+          <CardTitle>{selected ? "Edit station" : "Select a station"}</CardTitle>
           <CardDescription>
             {canEdit
               ? "Full edits use PUT; the quick action uses PATCH."
@@ -168,17 +173,50 @@ export function StationsPanel({ canEdit }: { canEdit: boolean }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <StationForm
-            key={selected?.id ?? "new"}
-            station={selected}
-            canEdit={canEdit}
-            onSaved={() => {
-              setSelected(undefined);
-              void load();
-            }}
-          />
+          {selected ? (
+            <StationForm
+              key={selected.id}
+              station={selected}
+              canEdit={canEdit}
+              onSaved={() => {
+                setSelected(undefined);
+                void load();
+              }}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Choose a station to edit it, or use “Add station” to create one.
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export function StationCreatePage({ canEdit }: { canEdit: boolean }) {
+  const router = useRouter();
+  return (
+    <Card className="max-w-2xl">
+      <CardHeader>
+        <CardTitle>Add station</CardTitle>
+        <CardDescription>Create a station in the public directory.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {canEdit ? (
+          <StationForm
+            canEdit={canEdit}
+            onSaved={() => router.push("/stations")}
+          />
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Your account can view stations but cannot create them.
+          </p>
+        )}
+        <Button className="mt-4" variant="ghost" render={<Link href="/stations" />} nativeButton={false}>
+          Cancel
+        </Button>
+      </CardContent>
+    </Card>
   );
 }

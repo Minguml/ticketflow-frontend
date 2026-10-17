@@ -5,7 +5,17 @@ import { Loading } from "@/features/user/components/user-home";
 import { useAuth } from "@/features/auth/auth-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-export function OperatorPortal() {
+export type OperatorPage =
+  | "overview"
+  | "stations"
+  | "stations-new"
+  | "routes"
+  | "routes-new"
+  | "drivers"
+  | "drivers-new"
+  | "access";
+
+export function OperatorPortal({ page }: { page?: OperatorPage } = {}) {
   const { user, loading, signOut } = useAuth();
   if (loading) return <Loading />;
   if (!user) return <OperatorLogin />;
@@ -28,5 +38,5 @@ export function OperatorPortal() {
         </Card>
       </main>
     );
-  return <OperatorDashboard />;
+  return <OperatorDashboard page={page} />;
 }
